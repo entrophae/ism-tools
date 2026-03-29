@@ -31,16 +31,16 @@ function loadTool(toolName) {
 function renderGoldCalcUI(container) {
     let data = gatherAllData();
     let maxSsl = data.general.max_ssl;
-
+    container.innerHTML = `<i class="credit">Credits: @Cadaeib</i>`;
     if (!maxSsl || maxSsl === 0) {
-        container.innerHTML = `<div class="placeholder-text" style="color: #d14936;">Please enter a <strong>Max Sword Lvl</strong> on the left side first!</div>`;
+        container.innerHTML += `<div class="placeholder-text" style="color: #d14936;">Please enter a <strong>Max Sword Lvl</strong> on the left side first!</div>`;
         return;
     }
 
     let html = `<h3 style="margin-bottom: 0.5rem; text-align: center;">Gold Until Max Sword</h3>`;
     html += `<p style="font-size: 0.8rem; text-align: center; margin-bottom: 1rem;">Enter how many swords you currently own for the levels below.</p>`;
     
-    html += `<div class="grid-2col">`;
+    html += `<div class="grid-2col-mt">`;
     
     // Loop to create 12 inputs counting down from maxSsl
     for (let i = 0; i < 12; i++) {
@@ -61,7 +61,7 @@ function renderGoldCalcUI(container) {
         <div id="calc-result" style="margin-top: 1rem; text-align: center; font-size: 1.2rem;color: #d14936;"></div>
     `;
 
-    container.innerHTML = html;
+    container.innerHTML += html;
     goldUntilMaxSword();
 }
 
