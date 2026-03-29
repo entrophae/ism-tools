@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISM Tools</title>
+    <link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+<div class="dashboard">
+
+    <div class="left-half">
+        <div class="panel panel-flex">
+            <div class="panel-header">Editable Player Stats</div>
+            
+            <div id="stats-container" class="scrollable-area"></div> 
+
+            <div class="save-container">
+                <button class="btn-green btn-full" onclick="console.log(gatherAllData())">SAVE ALL CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-half">
+        <div class="panel panel-full-height">
+            <div class="panel-header">Calculator</div>
+            <div class="panel-header tool-nav">
+                <button class="btn-blue active" onclick="loadTool('goldCalc')">Gold Calc</button>
+                <button class="btn-grey" onclick="loadTool('comingSoon')">Next Tool...</button>
+            </div>
+            <div id="tool-container" class="scrollable-area" style="padding: 1rem;">            
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="stats_script.js"></script>
+<script src="calculations.js"></script>
+</body>
+</html>
