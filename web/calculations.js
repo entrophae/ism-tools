@@ -118,17 +118,17 @@ function goldUntilMaxSword() {
     function calculateNeededGold(startCount, amountToBuy){
         let total = 0;
 
-        let petMultiplier = (100 - swordCostPet) / 100;
-        const globalReduction = 1 + ((luckyCatProcChance / 100) * (Math.min(amountToBuy, luckyCatProcRemaining) * 31 / amountToBuy));
+        let petMultiplier = (100 - swordCostPet) / 100;let cappedProcChance = Math.min(luckyCatProcChance, 100) / 100;
+        const globalReduction = 1 + (cappedProcChance * (Math.min(amountToBuy, luckyCatProcRemaining) * 31 / amountToBuy));
 
         for (let i = 0; i < amountToBuy; i++) {
             let currentSwordIndex = startCount + i + 1;
 
             let baseCost = 10*currentSwordIndex * Math.pow(1.0002, currentSwordIndex);
             
-            let hasProc = (luckyCatProcRemaining - i) > 0 ? 1 : 0;
-            let cappedProcChance = Math.min(luckyCatProcChance, 100) / 100;
-            let currentProcEffect = 1 + (31 * hasProc * cappedProcChance);
+            let hasProc = (luckyCatProcRemaining - i + 1) > 0 ? (luckyCatProcRemaining - i + 1) : 1;
+            
+            let currentProcEffect = 1 + (31 * Math.min(1, hasProc) * cappedProcChance);
 
             let swordCost = (baseCost * petMultiplier) / globalReduction / currentProcEffect;
             total += Math.round(swordCost);
@@ -144,7 +144,6 @@ function goldUntilMaxSword() {
         `Since Start: ${fullCost.toExponential(2)}\n` +
         `Remaining to buy: ${partialCost.toExponential(2)}`;
 
-    console.log(swordsBought, remainingToBuy, swordsBought + remainingToBuy, swordCostPet, luckyCatProcChance, luckyCatProcRemaining, ownedSwords, ownedSwordsInPercent)
 }
 
 window.onload = () => {
