@@ -31,9 +31,36 @@ function loadTool(toolName) {
 function renderGoldCalcUI(container) {
     let data = gatherAllData();
     let maxSsl = data.general.max_ssl;
+
+    let missingFields = [];
+
+    let maxSslInput = document.getElementById('general_max_ssl');
+    let swordsBoughtInput = document.getElementById('general_swords_bought');
+    let swordCostPetInput = document.getElementById('pet_sword_cost');
+    let fortuneCatInput = document.getElementById('lucky_fortune_cat');
+    let premiumPackInput = document.getElementById('lucky_premium_pack');
+
+    if (!maxSslInput || maxSslInput.value === "") missingFields.push({ name: "Max Sword Lvl (General)", id: "general_max_ssl" });
+    if (!swordsBoughtInput || swordsBoughtInput.value === "") missingFields.push({ name: "Swords Bought (General)", id: "general_swords_bought" });
+    if (!swordCostPetInput || swordCostPetInput.value === "") missingFields.push({ name: "Sword Cost (Pet Boosts)", id: "pet_sword_cost" });
+    if (!fortuneCatInput || fortuneCatInput.value === "") missingFields.push({ name: "Fortune Cat (Lucky Clovers)", id: "lucky_fortune_cat" });
+    if (!premiumPackInput || premiumPackInput.value === "") missingFields.push({ name: "Premium Pack (Lucky Clovers)", id: "lucky_premium_pack" });
+
     container.innerHTML = `<i class="credit">Credits: @Cadaeib</i>`;
-    if (!maxSsl || maxSsl === 0) {
-        container.innerHTML += `<div class="placeholder-text" style="color: #d14936;">Please enter a <strong>Max Sword Lvl</strong> on the left side first!</div>`;
+    if (missingFields.length > 0) {
+        let listHTML = missingFields.map(field => 
+            `<li style="margin-bottom: 0.5rem;">
+                • <span onclick="focusInput('${field.id}')" style="cursor: pointer; text-decoration: underline; color: #ff8b7e; font-weight: bold; transition: color 0.2s;">${field.name}</span>
+            </li>`
+        ).join('');
+        
+        container.innerHTML = `
+            <div class="placeholder-text" style="color: #d14936; text-align: center;">
+                <p style="margin-bottom: 10px;">Please enter the following values on the left side first:</p>
+                <ul style="list-style: none; padding: 0; display: inline-block; text-align: left;">
+                    ${listHTML}
+                </ul>
+            </div>`;
         return;
     }
 
@@ -118,3 +145,21 @@ function goldUntilMaxSword() {
 window.onload = () => {
     loadTool();
 };
+
+function focusInput(inputId) {
+    let el = document.getElementById(inputId);
+    if (el) {
+        let details = el.closest('details');
+        if (details) details.open = true;
+
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        el.focus();
+
+        let originalBg = el.style.backgroundColor;
+        el.style.backgroundColor = 'var(--btn-red)'; 
+        setTimeout(() => {
+            el.style.backgroundColor = originalBg || '#ffffff';
+        }, 600);
+    }
+}

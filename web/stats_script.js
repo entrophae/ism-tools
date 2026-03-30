@@ -87,7 +87,7 @@ function renderStats() {
                 content.innerHTML += `
                     <div class="list-row">
                         <div class="row-info"><label>${field}:</label></div>
-                        <input id="${group.id}${specificId}" type="number" value="0" class="stat-input">
+                        <input id="${group.id}${specificId}" type="number" value="" class="stat-input">
                     </div>`;
             });
         } 
@@ -101,7 +101,7 @@ function renderStats() {
                 gridHTML += `
                     <div class="list-row flex-col-stretch ${tierClass}">
                         <div class="row-info text-xs">${group.prefix} ${i}</div>
-                        <input id="${group.id}${i}" type="number" value="0" class="stat-input input-full-center">
+                        <input id="${group.id}${i}" type="number" value="" class="stat-input input-full-center">
                     </div>`;
             }
             gridHTML += `</div>`;
@@ -114,24 +114,24 @@ function renderStats() {
                 content.innerHTML += `
                     <div class="list-row">
                         <div class="row-info"><label>${field}:</label></div>
-                        <input id="${group.id}${specificId}" type="number" value="0" class="stat-input">
+                        <input id="${group.id}${specificId}" type="number" value="" class="stat-input">
                     </div>`;
             });
             let forgeGridHTML = `<div class="grid-2col-mt">`;
 
             for (let i = 1; i <= group.slotCount; i++) {
                 forgeGridHTML += `
-                    <div class="list-row slot-container slot-box" id="${group.id}slot_${i}_container">
-                        <div class="forge-selection">
-                            <span class="slot-lock lock-icon" onclick="toggleSlotLock(this)">🔓</span>
-                            <button id="${group.id}slot_${i}_btn_hp" data-type="hp" class="btn-sq active" onclick="selectForge(this)">HP</button>
-                            <button id="${group.id}slot_${i}_btn_xp" data-type="xp" class="btn-sq" onclick="selectForge(this)">XP</button>
-                            <button id="${group.id}slot_${i}_btn_gld" data-type="gold" class="btn-sq" onclick="selectForge(this)">GLD</button>
-                            <button id="${group.id}slot_${i}_btn_bar" data-type="bars" class="btn-sq" onclick="selectForge(this)">BAR</button>
+                    <div class="list-row slot-container slot-box" id="${group.id}slot_${i}_container" style="opacity: 0.6; pointer-events: none;">
+                        <div class="forge-selection" style="pointer-events: auto;">
+                            <span class="slot-lock lock-icon" onclick="toggleSlotLock(this)">🔒</span>
+                            <button id="${group.id}slot_${i}_btn_hp" data-type="hp" class="btn-sq active" onclick="selectForge(this) disabled">HP</button>
+                            <button id="${group.id}slot_${i}_btn_xp" data-type="xp" class="btn-sq" onclick="selectForge(this) disabled">XP</button>
+                            <button id="${group.id}slot_${i}_btn_gld" data-type="gold" class="btn-sq" onclick="selectForge(this) disabled">GLD</button>
+                            <button id="${group.id}slot_${i}_btn_bar" data-type="bars" class="btn-sq" onclick="selectForge(this) disabled">BAR</button>
                         </div>
                         <div>
                             <label>Slot ${i}:</label>
-                            <input id="${group.id}slot_${i}_lv" type="number" value="0" class="stat-input">
+                            <input id="${group.id}slot_${i}_lv" type="number" value="" class="stat-input" disabled>
                         </div>
                     </div>`;
             }
@@ -159,7 +159,9 @@ function toggleSlotLock(lockEl) {
 
     lockEl.parentElement.style.pointerEvents = 'auto';
 
-    saveToLocalStorage();
+    if (!window.isRestoringData) {
+        saveToLocalStorage();
+    }
 }
 
 function selectForge(btn) {
@@ -168,7 +170,9 @@ function selectForge(btn) {
     parent.querySelectorAll('.btn-sq').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    saveToLocalStorage();
+    if (!window.isRestoringData) {
+        saveToLocalStorage();
+    }
 }
 
 function gatherAllData() {
@@ -179,10 +183,12 @@ function gatherAllData() {
         saveData[groupKey] = {};
 
         if (group.type === 'standard') {
-            group.fields.forEach((field, index) => {
+            group.fields.forEach((_, index) => {
                 let specificId = group.fieldIds[index];
                 let inputElement = document.getElementById(`${group.id}${specificId}`);
-                saveData[groupKey][specificId] = Number(inputElement.value) || 0;
+                if (inputElement) {
+                    saveData[groupKey][specificId] = inputElement.value === "" ? "" : Number(inputElement.value);
+                }
             });
         } 
         
@@ -190,26 +196,31 @@ function gatherAllData() {
             saveData[groupKey].levels = {}; 
             for (let i = 1; i <= group.count; i++) {
                 let inputElement = document.getElementById(`${group.id}${i}`);
-                saveData[groupKey].levels[`${group.prefix.toLowerCase()}_${i}`] = Number(inputElement.value) || 0;
+                if (inputElement) {
+                    saveData[groupKey].levels[`${group.prefix.toLowerCase()}_${i}`] = inputElement.value === "" ? "" : Number(inputElement.value);
+                }
             }
         }
         
         else if (group.type === 'forge') {
-            group.baseFields.forEach((field, index) => {
+            group.baseFields.forEach((_, index) => {
                 let specificId = group.fieldIds[index];
                 let inputElement = document.getElementById(`${group.id}${specificId}`);
-                saveData[groupKey][specificId] = Number(inputElement.value) || 0;
+                if (inputElement) {
+                    saveData[groupKey][specificId] = inputElement.value === "" ? "" : Number(inputElement.value);
+                }
             });
 
             saveData[groupKey].slots = [];
             for (let i = 1; i <= group.slotCount; i++) {
                 let container = document.getElementById(`${group.id}slot_${i}_container`);
+                if (!container) continue;
                 
                 let levelInput = document.getElementById(`${group.id}slot_${i}_lv`);
-                let levelVal = Number(levelInput.value) || 0;
+                let levelVal = levelInput.value === "" ? "" : Number(levelInput.value);
 
                 let lockIcon = container.querySelector('.slot-lock');
-                let isLocked = lockIcon.textContent === '🔒';
+                let isLocked = lockIcon && lockIcon.textContent === '🔒';
 
                 let activeBtn = container.querySelector('.btn-sq.active');
                 let statType = activeBtn ? activeBtn.getAttribute('data-type') : "none";
@@ -222,7 +233,8 @@ function gatherAllData() {
                 saveData[groupKey].slots.push({
                     slot_number: i,
                     stat_type: statType,
-                    level: levelVal
+                    level: levelVal,
+                    is_locked: isLocked
                 });
             }
         }
@@ -244,12 +256,14 @@ function loadFromLocalStorage() {
     
     const data = JSON.parse(savedString);
 
+    window.isRestoringData = true;
+
     statsConfig.forEach(group => {
         let groupKey = group.id.replace('_', '');
         if (!data[groupKey]) return;
 
         if (group.type === 'standard' || group.type === 'forge') {
-            (group.fields || group.baseFields).forEach((field, index) => {
+            (group.fields || group.baseFields).forEach((_, index) => {
                 let specificId = group.fieldIds[index];
                 let el = document.getElementById(`${group.id}${specificId}`);
                 if (el && data[groupKey][specificId] !== undefined) {
@@ -271,37 +285,53 @@ function loadFromLocalStorage() {
         if (group.type === 'forge' && data[groupKey].slots) {
             data[groupKey].slots.forEach(slot => {
                 let lvEl = document.getElementById(`${group.id}slot_${slot.slot_number}_lv`);
-                if (lvEl) lvEl.value = slot.level;
+                if (lvEl && slot.level !== "") lvEl.value = slot.level;
 
-                if (slot.stat_type && slot.stat_type !== 'none') {
-                    let container = document.getElementById(`${group.id}slot_${slot.slot_number}_container`);
-                    if (container) {
+                let container = document.getElementById(`${group.id}slot_${slot.slot_number}_container`);
+                if (container) {
+                    if (slot.stat_type && slot.stat_type !== 'none') {
                         container.querySelectorAll('.btn-sq').forEach(b => b.classList.remove('active'));
                         let activeBtn = container.querySelector(`.btn-sq[data-type="${slot.stat_type}"]`);
                         if (activeBtn) activeBtn.classList.add('active');
+                    }
+                    
+                    let lockIcon = container.querySelector('.slot-lock');
+                    if (lockIcon) {
+                        // If it is supposed to be locked, but is currently open
+                        if (slot.is_locked && lockIcon.textContent === '🔓') {
+                            toggleSlotLock(lockIcon); 
+                        }
+                        // If it is supposed to be UNLOCKED, but is currently locked
+                        else if (!slot.is_locked && lockIcon.textContent === '🔒') {
+                            toggleSlotLock(lockIcon); 
+                        }
                     }
                 }
             });
         }
     });
+
+    window.isRestoringData = false;
 }
 
-document.addEventListener('input', (e) => {
-    if (e.target.tagName === 'INPUT') {
-        saveToLocalStorage();
-    }
-});
+document.addEventListener('DOMContentLoaded', () => {
+    renderStats();
+    loadFromLocalStorage();
 
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('lock-toggle')) {
-        const isLocked = e.target.textContent === '🔒';
-        e.target.textContent = isLocked ? '🔓' : '🔒';
-        
-        const panel = e.target.closest('.stat-group');
-        const inputs = panel.querySelectorAll('input, button:not(.lock-toggle), select');
-        inputs.forEach(i => i.disabled = !isLocked);
-    }
-});
+    document.addEventListener('input', (e) => {
+        if (e.target.tagName === 'INPUT' && !window.isRestoringData) {
+            saveToLocalStorage();
+        }
+    });
 
-renderStats();
-loadFromLocalStorage();
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('lock-toggle')) {
+            const isLocked = e.target.textContent === '🔒';
+            e.target.textContent = isLocked ? '🔓' : '🔒';
+            
+            const panel = e.target.closest('.stat-group');
+            const inputs = panel.querySelectorAll('input, button:not(.lock-toggle), select');
+            inputs.forEach(i => i.disabled = !isLocked);
+        }
+    });
+});
