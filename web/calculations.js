@@ -94,52 +94,57 @@ function renderGoldCalcUI(container) {
 
 function goldUntilMaxSword() {
     let data = gatherAllData();
-    
+
+
+    const swordsBought = data.general.swords_bought;
+    const swordCostPet = data.pet.sword_cost;
+    const luckyCatProcChance = baseCatProcChance * data.lucky.fortune_cat; 
+    const luckyCatProcRemaining = baseCatProcAmmount * (data.lucky.premium_pack+1);
+
+    const baseSwordsNeeded = Math.pow(2,12);
+
     let lowerSsl = [];
     for (let i = 0; i < 12; i++) {
         let inputEl = document.getElementById(`lower_ssl_${i}`);
         lowerSsl.push(inputEl ? Number(inputEl.value) : 0);
     }
-
-    const swordsBought = data.general.swords_bought;
-    const swordCostPet = data.pet.sword_cost;
-    const luckyCat = data.lucky.fortune_cat;
-    
-    const swordsNeeded = 4096;
-    const partialSwordValues = [2048,1024,512,256,128,64,32,16,8,4,2,1];
-    
-    let totalSwordValues = 0;
+    let ownedSwords = 0;
     lowerSsl.forEach((swordAmmount, index) => {
-        totalSwordValues += swordAmmount * partialSwordValues[index];
-        console.info(index, totalSwordValues);
+        ownedSwords += swordAmmount * Math.pow(2,11-index);
     })
-    const existingPercentOfSsl = totalSwordValues/swordsNeeded;
+    const ownedSwordsInPercent = ownedSwords/baseSwordsNeeded;
+    const remainingSwordsInPercent = 1-ownedSwordsInPercent;
 
-    let totalGold = 0;
-    let procsRemaining = baseCatProcAmmount; 
-    let procChance = baseCatProcChance; 
+    function calculateNeededGold(startCount, amountToBuy){
+        let total = 0;
 
-    for (let i = 0; i < swordsNeeded; i++) {
-        let currentSword = swordsBought + i + 1;
-        let baseCost = 10 * currentSword * Math.pow(1.0002, currentSword);
         let petMultiplier = (100 - swordCostPet) / 100;
+        const globalReduction = 1 + ((luckyCatProcChance / 100) * (Math.min(amountToBuy, luckyCatProcRemaining) * 31 / amountToBuy));
 
-        let currentProcEffect = 1;
-        if (luckyCat > 0) {
-            if (i < procsRemaining) {
-                let procBonus = (procChance / 100) * 31; 
-                currentProcEffect = 1 + procBonus;
-            }
+        for (let i = 0; i < amountToBuy; i++) {
+            let currentSwordIndex = startCount + i + 1;
+
+            let baseCost = 10*currentSwordIndex * Math.pow(1.0002, currentSwordIndex);
+            
+            let hasProc = (luckyCatProcRemaining - i) > 0 ? 1 : 0;
+            let cappedProcChance = Math.min(luckyCatProcChance, 100) / 100;
+            let currentProcEffect = 1 + (31 * hasProc * cappedProcChance);
+
+            let swordCost = (baseCost * petMultiplier) / globalReduction / currentProcEffect;
+            total += Math.round(swordCost);
         }
-
-        let swordCost = (baseCost * petMultiplier) / currentProcEffect;
-        totalGold += swordCost;
+        return total;
     }
 
-    const fullGoldInScience = Math.round(totalGold).toExponential(2);
-    const partialGoldInScience = Math.round(totalGold*(1-existingPercentOfSsl)).toExponential(2);
-    document.getElementById('calc-result').innerText = `Since Start: ${fullGoldInScience}
-    With Existing: ${partialGoldInScience}`;
+    const fullCost = calculateNeededGold(swordsBought, baseSwordsNeeded);
+    const remainingToBuy = baseSwordsNeeded - ownedSwords;
+    const partialCost = calculateNeededGold(swordsBought+ownedSwords, baseSwordsNeeded*remainingSwordsInPercent);
+    
+    document.getElementById('calc-result').innerText =
+        `Since Start: ${fullCost.toExponential(2)}\n` +
+        `Remaining to buy: ${partialCost.toExponential(2)}`;
+
+    console.log(swordsBought, remainingToBuy, swordsBought + remainingToBuy, swordCostPet, luckyCatProcChance, luckyCatProcRemaining, ownedSwords, ownedSwordsInPercent)
 }
 
 window.onload = () => {
