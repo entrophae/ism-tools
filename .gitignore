@@ -1,0 +1,25 @@
+# Ignore log files
+*.log
+ 
+# Ignore node_modules directory
+node_modules/
+ 
+# Ignore temporary files
+temp/
+
+# Ignore build directories
+dist/
+build/
+ 
+# Ignore minified and compiled files
+*.min.js
+*.min.css
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore Visual Studio Code configuration
+.vscode/
+ 
+# Ignore JetBrains IDE configuration
+.idea/
