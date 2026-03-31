@@ -64,7 +64,6 @@ const statsConfig = [
         slotCount: 10
     }
 ];
-
 function renderStats() {
     const container = document.getElementById('stats-container');
     if (!container) return;
@@ -72,7 +71,7 @@ function renderStats() {
     statsConfig.forEach(group => {
         const details = document.createElement('details');
         details.className = 'stat-group';
-
+        
         const summary = document.createElement('summary');
         summary.className = 'group-header';
         summary.textContent = group.title;
@@ -83,60 +82,29 @@ function renderStats() {
 
         if (group.type === 'standard') {
             group.fields.forEach((field, index) => {
-                let specificId = group.fieldIds[index]; 
-                content.innerHTML += `
-                    <div class="list-row">
-                        <div class="row-info"><label>${field}:</label></div>
-                        <input id="${group.id}${specificId}" type="number" value="" class="stat-input">
-                    </div>`;
+                content.innerHTML += UI.standardInputRow(`${group.id}${group.fieldIds[index]}`, `${field}:`);
             });
         } 
         
         else if (group.type === 'grid') {
             const tiers = ["bg-common", "bg-uncommon", "bg-rare", "bg-epic", "bg-legendary", "bg-mythic"];
-            let gridHTML = `<div class="grid-4col">`;
+            let gridContent = '';
             for (let i = 1; i <= group.count; i++) {
-                let tierIndex = Math.ceil(i / 4) - 1;
-                let tierClass = tiers[tierIndex];
-                gridHTML += `
-                    <div class="list-row flex-col-stretch ${tierClass}">
-                        <div class="row-info text-xs">${group.prefix} ${i}</div>
-                        <input id="${group.id}${i}" type="number" value="" class="stat-input input-full-center">
-                    </div>`;
+                let tierClass = tiers[Math.ceil(i / 4) - 1];
+                gridContent += UI.gridInputCol(`${group.id}${i}`, `${group.prefix} ${i}`, tierClass);
             }
-            gridHTML += `</div>`;
-            content.innerHTML += gridHTML;
+            content.innerHTML += UI.grid4(gridContent);
         }
         
         else if (group.type === 'forge') {
             group.baseFields.forEach((field, index) => {
-                let specificId = group.fieldIds[index];
-                content.innerHTML += `
-                    <div class="list-row">
-                        <div class="row-info"><label>${field}:</label></div>
-                        <input id="${group.id}${specificId}" type="number" value="" class="stat-input">
-                    </div>`;
+                content.innerHTML += UI.standardInputRow(`${group.id}${group.fieldIds[index]}`, `${field}:`);
             });
-            let forgeGridHTML = `<div class="grid-2col-mt">`;
-
+            let forgeContent = '';
             for (let i = 1; i <= group.slotCount; i++) {
-                forgeGridHTML += `
-                    <div class="list-row slot-container slot-box" id="${group.id}slot_${i}_container" style="opacity: 0.6; pointer-events: none;">
-                        <div class="forge-selection" style="pointer-events: auto;">
-                            <span class="slot-lock lock-icon" onclick="toggleSlotLock(this)">🔒</span>
-                            <button id="${group.id}slot_${i}_btn_hp" data-type="hp" class="btn-sq active" onclick="selectForge(this) disabled">HP</button>
-                            <button id="${group.id}slot_${i}_btn_xp" data-type="xp" class="btn-sq" onclick="selectForge(this) disabled">XP</button>
-                            <button id="${group.id}slot_${i}_btn_gld" data-type="gold" class="btn-sq" onclick="selectForge(this) disabled">GLD</button>
-                            <button id="${group.id}slot_${i}_btn_bar" data-type="bars" class="btn-sq" onclick="selectForge(this) disabled">BAR</button>
-                        </div>
-                        <div>
-                            <label>Slot ${i}:</label>
-                            <input id="${group.id}slot_${i}_lv" type="number" value="" class="stat-input" disabled>
-                        </div>
-                    </div>`;
+                forgeContent += UI.forgeSlot(group.id, i);
             }
-            forgeGridHTML += `</div>`;
-            content.innerHTML += forgeGridHTML;
+            content.innerHTML += UI.grid2(forgeContent);
         }
 
         details.appendChild(content);
@@ -149,15 +117,14 @@ function toggleSlotLock(lockEl) {
     lockEl.textContent = isLocked ? '🔓' : '🔒';
 
     const container = lockEl.closest('.slot-container');
-    const elements = container.querySelectorAll('input, button:not(.slot-lock)');
-    
-    elements.forEach(el => {
-        el.disabled = !isLocked;
-        container.style.opacity = !isLocked ? '0.6' : '1';
-        container.style.pointerEvents = !isLocked ? 'none' : 'auto';
-    });
+    if (isLocked) {
+        container.classList.remove('locked');
+    } else {
+        container.classList.add('locked');
+    }
 
-    lockEl.parentElement.style.pointerEvents = 'auto';
+    const elements = container.querySelectorAll('input, button:not(.slot-lock)');
+    elements.forEach( el => el.disabled = !isLocked );
 
     if (!window.isRestoringData) {
         saveToLocalStorage();
@@ -246,7 +213,6 @@ function gatherAllData() {
 function saveToLocalStorage() {
     let data = gatherAllData();
     localStorage.setItem('ismToolsData', JSON.stringify(data));
-    
     window.dispatchEvent(new Event('ismDataUpdated'));
 }
 
@@ -255,7 +221,6 @@ function loadFromLocalStorage() {
     if (!savedString) return;
     
     const data = JSON.parse(savedString);
-
     window.isRestoringData = true;
 
     statsConfig.forEach(group => {
@@ -297,12 +262,9 @@ function loadFromLocalStorage() {
                     
                     let lockIcon = container.querySelector('.slot-lock');
                     if (lockIcon) {
-                        // If it is supposed to be locked, but is currently open
                         if (slot.is_locked && lockIcon.textContent === '🔓') {
                             toggleSlotLock(lockIcon); 
-                        }
-                        // If it is supposed to be UNLOCKED, but is currently locked
-                        else if (!slot.is_locked && lockIcon.textContent === '🔒') {
+                        } else if (!slot.is_locked && lockIcon.textContent === '🔒') {
                             toggleSlotLock(lockIcon); 
                         }
                     }
@@ -321,17 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('input', (e) => {
         if (e.target.tagName === 'INPUT' && !window.isRestoringData) {
             saveToLocalStorage();
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('lock-toggle')) {
-            const isLocked = e.target.textContent === '🔒';
-            e.target.textContent = isLocked ? '🔓' : '🔒';
-            
-            const panel = e.target.closest('.stat-group');
-            const inputs = panel.querySelectorAll('input, button:not(.lock-toggle), select');
-            inputs.forEach(i => i.disabled = !isLocked);
         }
     });
 });
