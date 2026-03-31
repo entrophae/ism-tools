@@ -66,9 +66,20 @@ function initTools() {
 
     toolContainer.innerHTML = UI.placeholder("Select a tool from above");
 
+    let basePath = window.location.pathname;
+    if (basePath.endsWith('.html')) {
+        basePath = basePath.substring(0, basePath.lastIndexOf('/') + 1);
+    } 
+    else if (!basePath.endsWith('/')) {
+        basePath += '/';
+    }
+    else if (!basePath.endsWith('/')) {
+        basePath += '/';
+    }
+
     toolRegistry.forEach(tool => {
         const scriptTag = document.createElement('script');
-        scriptTag.src = `tools/${tool.file}`;
+        scriptTag.src = `${basePath}tools/${tool.file}`;
         scriptTag.async = false;
         document.body.appendChild(scriptTag);
 
