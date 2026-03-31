@@ -6,16 +6,74 @@ This is a web-port for all the Calculators and Tools created by the [ISM Discord
 Since most tools were created via google docs sheets, it limited version of those tools to the recently copied version from the original made by the creator.  
 To avoid the need of a google docs account and an version deprecations, this site should help the community to be onpar with the current state.  
 
-## How to cooperate?
+## How to contribute?
 
-It would be cool to have this as a collaborated experience, always updated to newest and most updated versions.  
-If you want to add your calculations with Pull Requests then those can be "programmed" or imported inside `calculations.js`.  
+It would be cool to have this as a collaborative experience, keeping the dashboard updated with the newest and most accurate tools created by YOU.
 
-### How to Access data in code
+If you want to contribute a new calculator or tool, please do so by submitting a Pull Request using the following structure.
 
-The left side of the Page creates a full object of the player stats which can be accessed via `let data = gatherAllData();`.  
+### 1. Create Tool File
+
+Write your code in `/tools` as a single JavaScript file.  
+Name it something understandable like `xpOptimizer.js`.  
+
+You can structure the internal logic of your tool however you like, but your file **must contain two specific functions** so the main app can load it:
+
+1. A **Render function** that generates the UI on the right-hand side of the screen.
+2. An **Update function** that runs your math and updates the results.
+
+### 2. Add your Tool to the Registry
+
+The `registry.js` file helps the app load your tool automatically without anyone having to manually edit the index.html file.
+
+Add your new tool as an object to the `toolRegistry` array. It should look like this:  
+
+```js
+    {
+        id: 'uniqueToolID', // A unique string ID for your tool
+        name: 'Tool Name', // The text that'll appear on the navigation button
+        file: 'yourTool.js', // The exact filename inside the /tools folder
+        // render: The function that builds the UI in the right-hand panel.
+        // Pass the "container" argument directly into your render function
+        render: (container) => typeof renderYourToolUI === 'function' ? renderYourToolUI(container) : null,
+        // update: The function that recalculates your math when the user changes a number
+        update: () => typeof updateYourCalculation === 'function' ? updateYourCalculation() : null
+    }
+```
+
+### 3. How to create UI
+
+Please avoid writing raw HTML strings if possible. There is a built-in UI builder in the `utility.js` file which provides clean, standardized components  
+
+```js
+// Example of building a simple UI
+function renderYourToolUI(toolContainer){
+  let html = UI.credits("@YourName");
+  html += UI.header("My Awesome Calculator");
+  html += UI.desc("Enter your values below to calculate X.");
+
+  // IMPORTANT: Include the ismDataUpdated event dispatcher so the app knows when the user types!
+  html += UI.standardInputRow('my_input_1', 'Target Level', '0', "window.dispatchEvent(new Event('ismDataUpdated'))");
+
+  html += UI.resultDisplay("calc-result");
+
+  toolContainer.innerHTML = html;
+
+  // Run your math once on load
+  updateYourCalculation();
+}
+```
+
+### 4. How to Access Player Data
+
+The left side of the page automatically saves and parses the user's game stats into a clean JSON object. You can grab the current state of the user's stats at any time by calling:  
+
+```js
+let data = gatherAllData();
+```
 
 The full data looks like this (example is my current stats):
+
 ```json
 {
   "general": {
@@ -57,26 +115,6 @@ The full data looks like this (example is my current stats):
       "fairy_2": 381,
       "fairy_3": 390,
       "fairy_4": 378,
-      "fairy_5": 252,
-      "fairy_6": 246,
-      "fairy_7": 233,
-      "fairy_8": 243,
-      "fairy_9": 122,
-      "fairy_10": 114,
-      "fairy_11": 125,
-      "fairy_12": 114,
-      "fairy_13": 49,
-      "fairy_14": 59,
-      "fairy_15": 42,
-      "fairy_16": 36,
-      "fairy_17": 35,
-      "fairy_18": 34,
-      "fairy_19": 27,
-      "fairy_20": 34,
-      "fairy_21": 15,
-      "fairy_22": 23,
-      "fairy_23": 13,
-      "fairy_24": 19
     }
   },
   "artifact": {
@@ -118,52 +156,16 @@ The full data looks like this (example is my current stats):
         "slot_number": 2,
         "stat_type": "gold",
         "level": 6
-      },
-      {
-        "slot_number": 3,
-        "stat_type": "bars",
-        "level": 4
-      },
-      {
-        "slot_number": 4,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 5,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 6,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 7,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 8,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 9,
-        "stat_type": "none",
-        "level": 0
-      },
-      {
-        "slot_number": 10,
-        "stat_type": "none",
-        "level": 0
       }
     ]
   }
 }
 ```
+
+*** (Note: I trimmed the fairies and shield slots in the JSON example to save space in the README)
+
 ## TODO
+
 - [ ] Calculate boosts from Skill Lvls, Artifact Lvls, Fairy Lvls, Shield Slot Lvls, Spell Lvls
 - [ ] Incorporate existing Calculators
 

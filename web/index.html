@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ISM Tools</title>
     <link rel="stylesheet" href="styles.css" type="text/css">
+
+    <script src="registry.js" defer></script> 
+    <script src="utility.js" defer></script> 
+    <script src="stats.js" defer></script>
 </head>
 <body>
 <div class="dashboard">
@@ -19,9 +23,7 @@
     <div class="right-half">
         <div class="panel panel-full">
             <div class="panel-header">Calculator</div>
-            <div class="panel-header tool-nav">
-                <button class="btn-grey" onclick="loadTool('goldCalc')">Gold Calc</button>
-                <button class="btn-grey" onclick="loadTool('comingSoon')">Next Tool...</button>
+            <div class="panel-header tool-nav" id="dynamic-tool-nav">
             </div>
             
             <div id="tool-container" class="scrollable-area p-md">            
@@ -31,8 +33,5 @@
 
 </div>
 
-<script src="utility.js"></script> 
-<script src="stats.js"></script>
-<script src="tools/goldForSSL.js"></script>
 </body>
 </html>

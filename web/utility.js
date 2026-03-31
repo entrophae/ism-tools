@@ -33,6 +33,7 @@ const UI = {
     desc: (text) => `<p class="tool-desc">${text}</p>`,
     resultDisplay: (id) => `<div id="${id}" class="calc-result"></div>`,
     credits: (name) => `<i class="credit">Credits: ${name}</i>`,
+    placeholder: (text) => `<div class="placeholder-text"><em>${text}</em></div>`,
     
     errorBox: (missingFields) => {
         let listHTML = missingFields.map(field => 
@@ -59,28 +60,56 @@ function focusInput(inputId) {
     }
 }
 window.currentActiveTool = null;
+function initTools() {
+    const navContainer = document.getElementById('dynamic-tool-nav');
+    const toolContainer = document.getElementById('tool-container');
 
-function loadTool(toolName) {
+    toolContainer.innerHTML = UI.placeholder("Select a tool from above");
+
+    toolRegistry.forEach(tool => {
+        const scriptTag = document.createElement('script');
+        scriptTag.src = `tools/${tool.file}`;
+        scriptTag.async = false;
+        document.body.appendChild(scriptTag);
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-grey';
+        btn.textContent = tool.name;
+        btn.onclick = () => loadTool(tool.id); 
+        
+        navContainer.appendChild(btn);
+    });
+}
+
+function loadTool(toolId) {
     const container = document.getElementById('tool-container');
-    window.currentActiveTool = toolName;
+    window.currentActiveTool = toolId;
     
-    document.querySelectorAll('.tool-nav button').forEach(btn => {
-        if (btn.getAttribute('onclick').includes(toolName)) {
+    const selectedTool = toolRegistry.find(tool => tool.id === toolId);
+    
+    const navContainer = document.getElementById('dynamic-tool-nav');
+    navContainer.querySelectorAll('button').forEach(btn => {
+        if (selectedTool && btn.textContent === selectedTool.name) {
             btn.className = 'btn-blue active';
         } else {
             btn.className = 'btn-grey';
         }
     });
 
-    if (toolName === 'goldCalc') {
-        if (typeof renderGoldCalcUI === 'function') renderGoldCalcUI(container);
+    if (selectedTool && selectedTool.render) {
+        selectedTool.render(container);
     } else {
-        container.innerHTML = `<div class="placeholder-text"><em>Tool coming soon...</em></div>`;
+        container.innerHTML = UI.placeholder("Tool coming soon");
     }
 }
 
 window.addEventListener('ismDataUpdated', () => {
-    if (window.currentActiveTool === 'goldCalc' && typeof goldUntilMaxSword === 'function') {
-        goldUntilMaxSword();
+    if (!window.currentActiveTool) return;
+
+    const activeTool = toolRegistry.find(t => t.id === window.currentActiveTool);
+    if (activeTool && activeTool.update) {
+        activeTool.update();
     }
 });
+
+document.addEventListener('DOMContentLoaded', initTools);
