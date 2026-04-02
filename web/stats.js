@@ -25,7 +25,25 @@ const statsConfig = [
         id: "fairy_",
         type: "grid",
         count: 24,
-        prefix: "Fairy"
+        prefix: "Fairy",
+        boostName: [
+            "Dmg", "Dmg", "Gold", "Gold",
+            "Dmg", "Dmg", "Gold", "Gold",
+            "Dmg", "Dmg", "Gold", "Gold",
+            "Dmg", "Gold", "XP", "Bar",
+            "Dmg", "Gold", "XP", "Bar",
+            "Dmg", "Gold", "Speeds*", "SSL"
+        ],
+        boostInc: [
+            5, 5, 5, 5,
+            10, 10, 10, 10,
+            25, 25, 25, 25,
+            50, 50, 10, 10,
+            100, 100, 50, 50,
+            200, 200, 10, 1
+        ],
+        calculate: "80stage",
+        calculateCredit: ""
     },
     {
         title: "Artifact Levels",
@@ -91,9 +109,14 @@ function renderStats() {
             let gridContent = '';
             for (let i = 1; i <= group.count; i++) {
                 let tierClass = tiers[Math.ceil(i / 4) - 1];
-                gridContent += UI.gridInputCol(`${group.id}${i}`, `${group.prefix} ${i}`, tierClass);
+                gridContent += UI.gridInputCol(`${group.id}${i}`,
+                    `${group.prefix} ${i}\n
+                    <i class="credit">${group.boostName[i-1]}+${group.boostInc[i-1]}%</i>`, tierClass);
             }
             content.innerHTML += UI.grid4(gridContent);
+            content.innerHTML += 
+                UI.note("* Only until 80% of Max Stage: ") +
+                UI.note("", "fairy-stage");
         }
         
         else if (group.type === 'forge') {
@@ -140,6 +163,26 @@ function selectForge(btn) {
     if (!window.isRestoringData) {
         saveToLocalStorage();
     }
+}
+
+function updateFairyStage() {
+    const stageInput = document.getElementById('general_stage');
+    const fairyStageEl = document.getElementById('fairy-stage'); 
+    
+    if (stageInput && fairyStageEl) {
+        const maxStage = Number(stageInput.value);
+        if (maxStage > 0) {
+            fairyStageEl.innerHTML = Math.floor(maxStage * 0.8);
+        } else {
+            fairyStageEl.innerHTML = UI.referTo("general_stage", "Edit General Stage");
+        }
+    }
+}
+
+function updateAllUI() {
+    updateFairyStage();
+
+    saveToLocalStorage();
 }
 
 function gatherAllData() {
@@ -218,9 +261,18 @@ function saveToLocalStorage() {
 
 function loadFromLocalStorage() {
     const savedString = localStorage.getItem('ismToolsData');
-    if (!savedString) return;
-    
-    const data = JSON.parse(savedString);
+    if (!savedString) return null;
+    try {
+        return JSON.parse(savedString);
+    } catch (error) {
+        console.error("Failed to parse ismToolsData from localStorage:", error);
+        return null;
+    }
+}
+
+function loadFromLocalStorage() {
+    const data = loadData()
+    if (!data) return;
     window.isRestoringData = true;
 
     statsConfig.forEach(group => {
@@ -274,6 +326,7 @@ function loadFromLocalStorage() {
     });
 
     window.isRestoringData = false;
+updateAllUI();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -281,8 +334,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
 
     document.addEventListener('input', (e) => {
-        if (e.target.tagName === 'INPUT' && !window.isRestoringData) {
+        if (!window.isRestoringData) {
+            if (e.target.tagName === 'INPUT') {
             saveToLocalStorage();
+            }
+
+            updateAllUI(); 
         }
     });
 });
