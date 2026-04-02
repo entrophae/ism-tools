@@ -73,9 +73,8 @@ function focusInput(inputId) {
         if (details) details.open = true;
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         el.focus();
-        let originalBg = el.style.backgroundColor;
         el.style.backgroundColor = 'var(--btn-red)'; 
-        setTimeout(() => el.style.backgroundColor = originalBg || '#ffffff', 600);
+        setTimeout(() => { el.style.backgroundColor = '' }, 600);
     }
 }
 window.currentActiveTool = null;
