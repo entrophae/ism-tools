@@ -45,7 +45,19 @@ const UI = {
                 <p>Please enter the following values on the left side first:</p>
                 <ul class="error-list">${listHTML}</ul>
             </div>`;
-    }
+    },
+
+    iframeApp: (overlayContent, iframeSrc) => `
+        <div class="tool-iframe-app">
+            ${UI.iframeOverlay(overlayContent)}
+            ${UI.fullIframe(iframeSrc)}
+    </div>`,
+    iframeOverlay: (content) => `
+        <div class="tool-iframe-overlay">
+            ${content}
+        </div>`,
+    fullIframe: (src) => `
+        <iframe class="tool-iframe" src="${src}"></iframe>`,
 };
 
 function validateFor(container, requiredFields){

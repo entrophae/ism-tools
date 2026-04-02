@@ -5,6 +5,13 @@ const toolRegistry = [
         file: 'goldForSSL.js',          
         render: (container) => typeof renderGoldCalcUI === 'function' ? renderGoldCalcUI(container) : null,
         update: () => typeof goldUntilMaxSword === 'function' ? goldUntilMaxSword() : null
+    },
+    {
+        id: 'dpsCalc',                 
+        name: 'DPS Calc',              
+        file: 'dpsCalc.js',          
+        render: (container) => typeof renderDPSUI === 'function' ? renderDPSUI(container) : null,
+        update: () => typeof calculate === 'function' ? calculate() : null
     }
     // Add the next tool here...
     // id: A unique ID for the tool
