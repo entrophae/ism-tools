@@ -11,7 +11,9 @@ const statsConfig = [
         id: "skill_",
         type: "standard",
         fields: ["Damage", "Gold", "XP", "Sword Spawn", "Ancient Bars", "Attack Range", "Attack Speed", "Movement Speed"],
-        fieldIds: ["damage", "gold", "xp", "ssl", "ancient_bars", "attack_range", "attack_speed", "movement_speed"]
+        fieldIds: ["damage", "gold", "xp", "ssl", "ancient_bars", "attack_range", "attack_speed", "movement_speed"],
+        calculate: "spent",
+        calculateCredit: "@Carlone" 
     },
     {
         title: "Pet Boosts",
@@ -112,6 +114,11 @@ function renderStats() {
             group.fields.forEach((field, index) => {
                 content.innerHTML += UI.standardInputRow(`${group.id}${group.fieldIds[index]}`, `${field}:`);
             });
+            if (group.calculate!=undefined){
+                content.innerHTML += 
+                    UI.note(`Points invested (Credits ${group.calculateCredit}):`) +
+                    UI.note("", `${group.id}${group.calculate}`);
+            }
         } 
         
         else if (group.type === 'grid') {
@@ -216,7 +223,7 @@ function renderStats() {
 }
 function toggleSkin(btn) {
     btn.classList.toggle('active');
-
+    
     if (!window.isRestoringData) {
         saveToLocalStorage();
         updateAllUI();
@@ -266,8 +273,32 @@ function updateFairyStage() {
     }
 }
 
+function updateSkillsSpent(){
+    const skills =  document.querySelectorAll('[id^="skill_"]:not(#skill_spent)');
+    const skillsSpent = document.getElementById('skill_spent');
+    let totalSkillpoints = 0;
+    skills.forEach(skill => {
+        if (skill.value.trim() !== "") {
+            totalSkillpoints += getSkillpoints(Number(skill.value),skill.id);
+        }
+    });
+    skillsSpent.innerHTML = totalSkillpoints;
+}
+
+function getSkillpoints(skillValue, skillID){
+    
+    if (skillID == "skill_ssl") {
+        return skillValue * (skillValue+1) / 2;
+    } else {
+        const quotient = Math.floor(skillValue / 10);
+        const rest = skillValue%10;
+        return quotient*(quotient+1)*5+rest*(quotient+1);
+    }
+}
+
 function updateAllUI() {
     updateFairyStage();
+    updateSkillsSpent();
 
     saveToLocalStorage();
 }
@@ -287,6 +318,11 @@ function gatherAllData() {
                     saveData[groupKey][specificId] = inputElement.value === "" ? "" : Number(inputElement.value);
                 }
             });
+            if (group.calculate!=undefined){
+                let calculateElement = document.getElementById(`${group.id}${group.calculate}`);
+                let textVal = calculateElement.textContent;
+                saveData[groupKey][group.calculate] = textVal === "" ? "" : Number(textVal);
+            }
         } 
         
         else if (group.type === 'grid') {
@@ -469,7 +505,7 @@ function loadFromLocalStorage() {
     });
 
     window.isRestoringData = false;
-updateAllUI();
+    updateAllUI();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -479,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('input', (e) => {
         if (!window.isRestoringData) {
             if (e.target.tagName === 'INPUT') {
-            saveToLocalStorage();
+                saveToLocalStorage();
             }
 
             updateAllUI(); 
