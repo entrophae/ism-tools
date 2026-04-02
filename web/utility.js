@@ -18,10 +18,10 @@ const UI = {
 
     forgeSlot: (idPrefix, slotNum) => {
         const lock = `<span class="slot-lock lock-icon" onclick="toggleSlotLock(this)">🔒</span>`;
-        const btnHp = UI.button(`${idPrefix}slot_${slotNum}_btn_hp`, 'HP', 'btn-sq active', `data-type="hp" onclick="selectForge(this)" disabled`);
-        const btnXp = UI.button(`${idPrefix}slot_${slotNum}_btn_xp`, 'XP', 'btn-sq', `data-type="xp" onclick="selectForge(this)" disabled`);
-        const btnGld = UI.button(`${idPrefix}slot_${slotNum}_btn_gld`, 'GLD', 'btn-sq', `data-type="gold" onclick="selectForge(this)" disabled`);
-        const btnBar = UI.button(`${idPrefix}slot_${slotNum}_btn_bar`, 'BAR', 'btn-sq', `data-type="bars" onclick="selectForge(this)" disabled`);
+        const btnHp = UI.button(`${idPrefix}slot_${slotNum}_btn_hp`, 'HP', 'btn-sq bool-btn active', `data-type="hp" onclick="selectForge(this)" disabled`);
+        const btnXp = UI.button(`${idPrefix}slot_${slotNum}_btn_xp`, 'XP', 'btn-sq bool-btn', `data-type="xp" onclick="selectForge(this)" disabled`);
+        const btnGld = UI.button(`${idPrefix}slot_${slotNum}_btn_gld`, 'GLD', 'btn-sq bool-btn', `data-type="gold" onclick="selectForge(this)" disabled`);
+        const btnBar = UI.button(`${idPrefix}slot_${slotNum}_btn_bar`, 'BAR', 'btn-sq bool-btn', `data-type="bars" onclick="selectForge(this)" disabled`);
         
         const selection = `<div class="forge-selection">${lock}${btnHp}${btnXp}${btnGld}${btnBar}</div>`;
         const levelInput = `<div><label>Slot ${slotNum}:</label>` + UI.input(`${idPrefix}slot_${slotNum}_lv`, 'input-sm', 'disabled') + `</div>`;
@@ -32,13 +32,14 @@ const UI = {
     header: (text) => `<h3 class="tool-title">${text}</h3>`,
     desc: (text) => `<p class="tool-desc">${text}</p>`,
     resultDisplay: (id) => `<div id="${id}" class="calc-result"></div>`,
-    credits: (name) => `<i class="credit">Credits: ${name}</i>`,
+    note: (name, optId="") => `<i class="credit" id="${optId}">${name}</i>`,
+    credits: (name) => UI.note(`Credits: ${name}`),
     placeholder: (text) => `<div class="placeholder-text"><em>${text}</em></div>`,
-    
+
+    referTo: (id, name) => `<span class="error-link" onclick="focusInput('${id}')">${name}</span>`,
     errorBox: (missingFields) => {
-        let listHTML = missingFields.map(field => 
-            `<li class="error-item">• <span class="error-link" onclick="focusInput('${field.id}')">${field.name}</span></li>`
-        ).join('');
+        let listHTML = missingFields.map(field => `<li class="error-item">
+            • ${UI.referTo(field.id, field.name)}</li>`).join('');
         return `
             <div class="error-box">
                 <p>Please enter the following values on the left side first:</p>
@@ -46,6 +47,24 @@ const UI = {
             </div>`;
     }
 };
+
+function validateFor(container, requiredFields){
+    let missingFields = [];
+
+    requiredFields.forEach(field => {
+        let el = document.getElementById(field.id);
+    
+        if (!el || el.value.trim() === "") {
+            missingFields.push(field);
+        }
+    });
+
+    if (missingFields.length > 0) {
+        container.innerHTML = UI.errorBox(missingFields);
+        return false;
+    }
+    return true;
+}
 
 function focusInput(inputId) {
     let el = document.getElementById(inputId);

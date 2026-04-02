@@ -4,10 +4,9 @@ const baseCatProcChance = 0.02;
 function renderGoldCalcUI(container) {
     let data = gatherAllData();
     let maxSsl = data.general.max_ssl;
-    let missingFields = [];
 
     // Validation Check
-    const checks = [
+    const required = [
         { name: "Max Sword Lvl (General)", id: "general_max_ssl" },
         { name: "Swords Bought (General)", id: "general_swords_bought" },
         { name: "Sword Cost (Pet Boosts)", id: "pet_sword_cost" },
@@ -15,17 +14,8 @@ function renderGoldCalcUI(container) {
         { name: "Premium Pack (Lucky Clovers)", id: "lucky_premium_pack" }
     ];
 
-    checks.forEach(check => {
-        let el = document.getElementById(check.id);
-        if (!el || el.value === "") missingFields.push(check);
-    });
+    if (!validateFor(container, required)) return;;
 
-    if (missingFields.length > 0) {
-        container.innerHTML = UI.credits("@Cadaeib") + UI.errorBox(missingFields);
-        return;
-    }
-
-    // --- CLEAN UI BUILDING WITH UTILITY.JS ---
     let html = UI.credits("@Cadaeib");
     html += UI.header("Gold Until Max Sword");
     html += UI.desc("Enter how many swords you currently own for the levels below.");
