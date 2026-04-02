@@ -80,6 +80,16 @@ const statsConfig = [
         baseFields: ["Sword Spawn"],
         fieldIds: ["ssl"],
         slotCount: 10
+    },
+    {
+        title: "Skins",
+        id: "skins_",
+        type: "boolean_rows",
+        count: 48,
+        tiers: 3,
+        prefix: "Skin",
+        boostName: [ "Dmg", "Gold", "XP", "MVS", "ATS"],
+        boostInc: [[2, 50, 50, 10],[3, 100, 100, 10],[5, 200, 200, 10]]
     }
 ];
 function renderStats() {
@@ -130,11 +140,88 @@ function renderStats() {
             content.innerHTML += UI.grid2(forgeContent);
         }
 
+        else if (group.type === 'boolean_rows') {
+            let allTiersContent = '';
+
+            for (let tier = 0; tier < group.tiers; tier++) {
+                let tierNum = tier + 1;
+                
+                let valDmg = group.boostInc[tier][0];
+                let valGold = group.boostInc[tier][1];
+                let valXP = group.boostInc[tier][2];
+                let valSpeed = group.boostInc[tier][3]; 
+
+                const makeButtons = (count, name) => {
+                    let buttons = '';
+                    for (let i = 0; i < count; i++) {
+                        let skinId = name.toLowerCase() + "_tier"+ tierNum + "_"+(i+1);
+                        let isFirstDmgSkin = (tierNum === 1 && name === group.boostName[0] && i === 0);
+                        let btnClasses = isFirstDmgSkin ? "btn-sq bool-btn active" : "btn-sq bool-btn";
+                        let btnAttrs = isFirstDmgSkin ? "disabled" : 'onclick="toggleSkin(this)"';
+
+                        buttons += UI.button(
+                            `${group.id}${skinId}`, 
+                            `X`, 
+                            btnClasses, 
+                            btnAttrs
+                        ) + ' ';
+                    }
+                    return buttons;
+                };
+
+                let dmgRow = UI.row(
+                    UI.label(group.boostName[0])+
+                    makeButtons(4, group.boostName[0])+
+                    UI.note(`(x${valDmg})`)
+                );
+                let goldRow = UI.row(
+                    UI.label(group.boostName[1])+
+                    makeButtons(4, group.boostName[1])+
+                    UI.note(`(+${valGold}%)`)
+                );
+                let xpRow = UI.row(
+                    UI.label(group.boostName[2])+
+                    makeButtons(4, group.boostName[2])+
+                    UI.note(`(+${valXP}%)`)
+                );
+                let mvsRow = UI.row(
+                    UI.label(group.boostName[3])+
+                    makeButtons(2, group.boostName[3])+
+                    UI.note(`(+${valSpeed}%)`)
+                );
+                let atsRow = UI.row(
+                    UI.label(group.boostName[4])+
+                    makeButtons(2, group.boostName[4])+
+                    UI.note(`(+${valSpeed}%)`)
+                );
+    
+
+                let title = `Tier ${tierNum}`;
+                let tierHtml = `
+                    ${UI.header(title)}
+                    ${dmgRow}
+                    ${goldRow}
+                    ${xpRow}
+                    ${mvsRow}
+                    ${atsRow}`; 
+
+                allTiersContent += tierHtml;
+            }
+            content.innerHTML += allTiersContent;
+        }
+
         details.appendChild(content);
         container.appendChild(details);
     });
 }
+function toggleSkin(btn) {
+    btn.classList.toggle('active');
 
+    if (!window.isRestoringData) {
+        saveToLocalStorage();
+        updateAllUI();
+    }
+}
 function toggleSlotLock(lockEl) {
     const isLocked = lockEl.textContent === '🔒';
     lockEl.textContent = isLocked ? '🔓' : '🔒';
@@ -248,7 +335,34 @@ function gatherAllData() {
                 });
             }
         }
+
+        else if (group.type === 'boolean_rows') {
+            group.boostName.forEach(name => {
+                saveData[groupKey][name.toLowerCase()] = {};
+            });
+
+            const statCounts = { "Dmg": 4, "Gold": 4, "XP": 4, "MVS": 2, "ATS": 2 };
+
+            for (let tier = 0; tier < group.tiers; tier++) {
+                let tierNum = tier + 1;
+                
+                group.boostName.forEach(name => {
+                    let statKey = name.toLowerCase();
+                    let count = statCounts[name];
+                    
+                    for (let i = 0; i < count; i++) {
+                        let skinId = `${statKey}_tier${tierNum}_${i+1}`;
+                        let btn = document.getElementById(`${group.id}${skinId}`);
+                        
+                        if (btn) {
+                            saveData[groupKey][statKey][`tier${tierNum}_${i+1}`] = btn.classList.contains('active');
+                        }
+                    }
+                });
+            }
+        }
     });
+    
 
     return saveData;
 }
@@ -259,7 +373,7 @@ function saveToLocalStorage() {
     window.dispatchEvent(new Event('ismDataUpdated'));
 }
 
-function loadFromLocalStorage() {
+function loadData(){
     const savedString = localStorage.getItem('ismToolsData');
     if (!savedString) return null;
     try {
@@ -322,6 +436,35 @@ function loadFromLocalStorage() {
                     }
                 }
             });
+        }
+        if (group.type === 'boolean_rows' && data[groupKey]) {
+            const statCounts = { "Dmg": 4, "Gold": 4, "XP": 4, "MVS": 2, "ATS": 2 };
+
+            for (let tier = 0; tier < group.tiers; tier++) {
+                let tierNum = tier + 1;
+                
+                group.boostName.forEach(name => {
+                    let statKey = name.toLowerCase();
+                    let count = statCounts[name];
+                    
+                    for (let i = 0; i < count; i++) {
+                        let detailKey = `tier${tierNum}_${i+1}`;
+                        let skinId = `${statKey}_${detailKey}`;
+                        let btn = document.getElementById(`${group.id}${skinId}`);
+                        
+                        if (btn && data[groupKey][statKey] && data[groupKey][statKey][detailKey] !== undefined) {
+                            if (data[groupKey][statKey][detailKey] === true) {
+                                btn.classList.add('active');
+                            } else {
+                                let isFirstDmgSkin = (tierNum === 1 && name === group.boostName[0] && i === 0);
+                                if (!isFirstDmgSkin) {
+                                    btn.classList.remove('active');
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     });
 
