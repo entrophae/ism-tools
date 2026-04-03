@@ -49,15 +49,20 @@ const UI = {
 
     iframeApp: (overlayContent, iframeSrc) => `
         <div class="tool-iframe-app">
-            ${UI.iframeOverlay(overlayContent)}
+            ${UI.iframeTopper(overlayContent)}
             ${UI.fullIframe(iframeSrc)}
     </div>`,
-    iframeOverlay: (content) => `
+    iframeTopper: (content) => `
         <div class="tool-iframe-overlay">
             ${content}
         </div>`,
-    fullIframe: (src) => `
-        <iframe class="tool-iframe" src="${src}"></iframe>`,
+    fullIframe: (src) => {
+        const parameterStart = src.includes("?") ? "&" : "?";
+        const embedParameter = `${parameterStart}embed=true`;
+        const finalSource = src + embedParameter;
+        return `<iframe class="tool-iframe" src="${finalSource}"></iframe>`;
+    },
+
 };
 
 function validateFor(container, requiredFields){

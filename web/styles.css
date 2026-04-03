@@ -387,9 +387,7 @@ i.credit {
 }
 
 .tool-iframe-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 10;
+    flex: none;
     padding: 0.5rem;
     background: var(--panel-bg);
     border-bottom: var(--border-thick) solid var(--panel-border); 

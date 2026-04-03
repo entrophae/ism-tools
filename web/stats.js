@@ -279,13 +279,13 @@ function updateSkillsSpent(){
     let totalSkillpoints = 0;
     skills.forEach(skill => {
         if (skill.value.trim() !== "") {
-            totalSkillpoints += getSkillpoints(Number(skill.value),skill.id);
+            totalSkillpoints += getInvestedSkillpoints(Number(skill.value),skill.id);
         }
     });
     skillsSpent.innerHTML = totalSkillpoints;
 }
 
-function getSkillpoints(skillValue, skillID){
+function getInvestedSkillpoints(skillValue, skillID){
     
     if (skillID == "skill_ssl") {
         return skillValue * (skillValue+1) / 2;
