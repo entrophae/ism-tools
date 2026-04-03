@@ -1,4 +1,4 @@
-function renderDpsCalc(container) {
+function renderDpsCalcUI(container) {
     let topperHtml = ''; 
     topperHtml += UI.credits(`@Carlone`);
     topperHtml += UI.desc("Maximize your DPS by optimally allocating your available Skillpoints after the daily reset, to reach your highest stage")

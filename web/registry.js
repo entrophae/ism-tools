@@ -10,7 +10,7 @@ const toolRegistry = [
         id: 'dpsCalc',                 
         name: 'DPS Calc',              
         file: 'dpsCalc.js',          
-        render: (container) => typeof renderDPSUI === 'function' ? renderDPSUI(container) : null,
+        render: (container) => typeof renderDpsCalcUI === 'function' ? renderDpsCalcUI(container) : null,
         update: () => typeof calculateDpsCalc === 'function' ? calculateDpsCalc() : null
     }
     // Add the next tool here...
