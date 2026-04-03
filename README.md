@@ -41,6 +41,10 @@ Add your new tool as an object to the `toolRegistry` array. It should look like 
     }
 ```
 
+*** (Note: Different tools need to have their functions named differently, or else the first positioned tool with that function will take its place)
+
+
+
 ### 3. How to create UI
 
 Please avoid writing raw HTML strings if possible. There is a built-in UI builder in the `utility.js` file which provides clean, standardized components  
@@ -97,7 +101,8 @@ The full data looks like this (example is my current stats):
     "ancient_bars": 200,
     "attack_range": 90,
     "attack_speed": 0,
-    "movement_speed": 100
+    "movement_speed": 100,
+    "spent": 15046
   },
   "pet": {
     "damage": 18000000000000000,
@@ -148,21 +153,43 @@ The full data looks like this (example is my current stats):
     "ssl": 8,
     "slots": [
       {
+        "is_locked": false,
         "slot_number": 1,
         "stat_type": "gold",
         "level": 10
       },
       {
+        "is_locked": false,
         "slot_number": 2,
         "stat_type": "gold",
         "level": 6
       }
     ]
+  },
+  "skins": {
+    "ats": {
+      "tier1_1": true,
+      "tier1_2": true,
+      "tier2_1": false,
+      "tier2_2": false,
+      "tier3_1": false,
+      "tier3_2": false
+    },
+    "dmg": {
+      "tier1_1": true,
+      "tier1_2": true,
+      "tier1_3": true,
+      "tier1_4": true
+    },
+    "gold": {},
+    "mvs": {},
+    "xp": {},
+
   }
 }
 ```
 
-*** (Note: I trimmed the fairies and shield slots in the JSON example to save space in the README)
+*** (Note: I trimmed the skins, fairies and shield slots in the JSON example to save space in the README)
 
 ## TODO
 
@@ -174,13 +201,13 @@ The full data looks like this (example is my current stats):
 ### Already inside
 
 - **Gold Calc** by _@Cadaeib_! Original: https://docs.google.com/spreadsheets/d/1XBX2tjyLHOk7QRVarTKp4xutWqmJ_WH6ulQ_YTS6WkE
+- **DPS Calc** by _@Carlo_! Original: https://carlone-beep.github.io/dps-optimizer
+- **SP Invested** by _@Fierywind_! Original: https://docs.google.com/spreadsheets/d/1GWTo6tLFP54SGaCGgLAbxfp4shKS4rTNjCx1PMkWVaM
 
 ### Not yet inside
 
-- **DPS Calc** by _@Carlo_! Original: https://carlone-beep.github.io/dps-optimizer
 - **Ancient Calc** by _@Fierywind_! Original: https://docs.google.com/spreadsheets/d/1TgT6U9551YEzAsDiZKdtYOPu7Vnj0osWlm0F292EgaA
 - **Elve Tree Calc** by _@Fierywind_! Original: https://docs.google.com/spreadsheets/d/1X7AryHrK5e_-WSjEdkr8Ss0X2prFrLVfkbCk_VswSU4
-- **SP Invested** by _@Fierywind_! Original: https://docs.google.com/spreadsheets/d/1GWTo6tLFP54SGaCGgLAbxfp4shKS4rTNjCx1PMkWVaM
 - **Shield Calc** by _@Bach_! Original: https://docs.google.com/spreadsheets/d/1CKnD7bI97tuJFSWwiKP-ynu2JBkpN7dxEmEKyth5qEA/edit?gid=320158459#gid=320158459
 - **Shield Stacking** by _@Cadaeib_! Original: https://docs.google.com/spreadsheets/d/1Ry2xeqwwYexYWRDR7l7RMvr7sb1VjXXNsv2LtjmOZVQ
 - **Rank Change** by _@Cadaeib_! Original: https://script.google.com/macros/s/AKfycbwEpGCpBcTzHm62AZP-V_1lLZlLmwTYCrWbJKx9Hf4o5NlSb-aNlH5Q80UigEmTxmQ8wA/exec
