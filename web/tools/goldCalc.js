@@ -36,10 +36,10 @@ function renderGoldCalcUI(container) {
     html += UI.resultDisplay("calc-result");
 
     container.innerHTML = html;
-    goldUntilMaxSword();
+    calculateGoldCalc();
 }
 
-function goldUntilMaxSword() {
+function calculateGoldCalc() {
     let data = gatherAllData();
 
     const swordsBought = data.general.swords_bought;

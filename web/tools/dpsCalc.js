@@ -1,4 +1,4 @@
-function renderDPSUI(container) {
+function renderDpsCalc(container) {
     let topperHtml = ''; 
     topperHtml += UI.credits(`@Carlone`);
     topperHtml += UI.desc("Maximize your DPS by optimally allocating your available Skillpoints after the daily reset, to reach your highest stage")
@@ -10,9 +10,9 @@ function renderDPSUI(container) {
     let iframeContainer = UI.iframeApp(topperHtml,"https://carlone-beep.github.io/dps-optimizer/");
     container.innerHTML = iframeContainer;
 
-    calculate()
+    calculateDpsCalc()
 }
-function calculate(){
+function calculateDpsCalc(){
     const data = loadData();
     const skillpoints = data.general.skill_points;
     const skillpointsSpent = data.skill.spent;
