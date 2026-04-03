@@ -203,6 +203,7 @@ The full data looks like this (example is my current stats):
 - **Gold Calc** by _@Cadaeib_! Original: https://docs.google.com/spreadsheets/d/1XBX2tjyLHOk7QRVarTKp4xutWqmJ_WH6ulQ_YTS6WkE
 - **DPS Calc** by _@Carlo_! Original: https://carlone-beep.github.io/dps-optimizer
 - **SP Invested** by _@Fierywind_! Original: https://docs.google.com/spreadsheets/d/1GWTo6tLFP54SGaCGgLAbxfp4shKS4rTNjCx1PMkWVaM
+- **Equipment Sim** by _@Cadaeib_! Original: https://gear-sim-mwyxm3nezsycvmhqstnqi3.streamlit.app/
 
 ### Not yet inside
 
@@ -211,5 +212,4 @@ The full data looks like this (example is my current stats):
 - **Shield Calc** by _@Bach_! Original: https://docs.google.com/spreadsheets/d/1CKnD7bI97tuJFSWwiKP-ynu2JBkpN7dxEmEKyth5qEA/edit?gid=320158459#gid=320158459
 - **Shield Stacking** by _@Cadaeib_! Original: https://docs.google.com/spreadsheets/d/1Ry2xeqwwYexYWRDR7l7RMvr7sb1VjXXNsv2LtjmOZVQ
 - **Rank Change** by _@Cadaeib_! Original: https://script.google.com/macros/s/AKfycbwEpGCpBcTzHm62AZP-V_1lLZlLmwTYCrWbJKx9Hf4o5NlSb-aNlH5Q80UigEmTxmQ8wA/exec
-- **Equipment Sim** by _@Cadaeib_! Original: https://gear-sim-mwyxm3nezsycvmhqstnqi3.streamlit.app/
 - **End Game Pack Value** by _@Cadaeib_! Original: https://docs.google.com/spreadsheets/d/1nM6wsjMeWEMCd7EV60CMxxTsUybIN-dhc36WlMPy6Ao/edit?usp=sharing

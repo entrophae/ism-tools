@@ -12,6 +12,13 @@ const toolRegistry = [
         file: 'dpsCalc.js',          
         render: (container) => typeof renderDpsCalcUI === 'function' ? renderDpsCalcUI(container) : null,
         update: () => typeof calculateDpsCalc === 'function' ? calculateDpsCalc() : null
+    },
+    {
+        id: 'gearSim',                 
+        name: 'Gear Sim',              
+        file: 'gearSim.js',          
+        render: (container) => typeof renderGearSimUI === 'function' ? renderGearSimUI(container) : null,
+        update: () => typeof calculateGearSim === 'function' ? calculateGearSim() : null
     }
     // Add the next tool here...
     // id: A unique ID for the tool
