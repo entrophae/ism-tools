@@ -2,12 +2,40 @@ const UI = {
     row: (content, extraClass = '') => `<div class="list-row ${extraClass}">${content}</div>`,
     col: (content, extraClass = '') => `<div class="list-row list-col ${extraClass}">${content}</div>`,
     grid2: (content) => `<div class="grid-2">${content}</div>`,
+    grid3: (content) => `<div class="grid-3">${content}</div>`,
     grid4: (content) => `<div class="grid-4">${content}</div>`,
 
     label: (text, extraClass = '') => `<div class="row-info ${extraClass}"><label>${text}</label></div>`,
-    input: (id, extraClass = '', attrs = '') => `<input id="${id}" type="number" value="" class="stat-input ${extraClass}" ${attrs}>`,
-    button: (id, text, classes, attrs = '') => `<button id="${id}" class="${classes}" ${attrs}>${text}</button>`,
+    input: (id, extraClass = '', attrs = '') => {
+        let savedValue = '';
+        
+        // Check if an input with this ID already exists on the page (e.g., in the left panel)
+        const existingEl = document.getElementById(id);
+        if (existingEl && existingEl.value !== '') {
+            savedValue = existingEl.value;
+        }
+        
+        return `<input id="${id}" type="number" value="${savedValue}" class="stat-input ${extraClass}" ${attrs}>`;
+    },
+    button: (id, text, classes, attrs = '') => {
+        let finalClasses = classes;
 
+        // Check if a button with this ID already exists on the page
+        const existingEl = document.getElementById(id);
+        if (existingEl) {
+            // Sync the 'active' state based on the existing button
+            if (existingEl.classList.contains('active')) {
+                if (!finalClasses.includes('active')) {
+                    finalClasses += ' active';
+                }
+            } else {
+                // If the original button isn't active, ensure this one isn't either
+                finalClasses = finalClasses.replace(/\bactive\b/g, '').trim();
+            }
+        }
+
+        return `<button id="${id}" class="${finalClasses}" ${attrs}>${text}</button>`;
+    },
     standardInputRow: (id, labelText) => {
         return UI.row(UI.label(labelText) + UI.input(id));
     },

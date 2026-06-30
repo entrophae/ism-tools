@@ -13,6 +13,7 @@ const statsConfig = [
         fields: ["Damage", "Gold", "XP", "Sword Spawn", "Ancient Bars", "Attack Range", "Attack Speed", "Movement Speed"],
         fieldIds: ["damage", "gold", "xp", "ssl", "ancient_bars", "attack_range", "attack_speed", "movement_speed"],
         calculate: "spent",
+        calculateText: "Points invested",
         calculateCredit: "@Carlone" 
     },
     {
@@ -23,28 +24,13 @@ const statsConfig = [
         fieldIds: ["damage", "gold", "xp", "attack_speed", "movement_speed", "attack_range", "sword_cost", "ssl"]
     },
     {
-        title: "Fairy Levels",
+        title: "Total Fairy Boosts",
         id: "fairy_",
-        type: "grid",
-        count: 24,
-        prefix: "Fairy",
-        boostName: [
-            "Dmg", "Dmg", "Gold", "Gold",
-            "Dmg", "Dmg", "Gold", "Gold",
-            "Dmg", "Dmg", "Gold", "Gold",
-            "Dmg", "Gold", "XP", "Bar",
-            "Dmg", "Gold", "XP", "Bar",
-            "Dmg", "Gold", "Speeds*", "SSL"
-        ],
-        boostInc: [
-            5, 5, 5, 5,
-            10, 10, 10, 10,
-            25, 25, 25, 25,
-            50, 50, 10, 10,
-            100, 100, 50, 50,
-            200, 200, 10, 1
-        ],
-        calculate: "80stage",
+        type: "standard",
+        fields: ["Damage", "Gold", "XP", "Sword Spawn", "Ancient Bars", "MVS & ATS Speed", "Attack Speed", "Movement Speed"],
+        fieldIds: ["damage", "gold", "xp", "ssl", "ancient_bars", "attack_range", "all_speed", "movement_speed"],
+        calculate: "stage",
+        calculateText: "80% of Max Stage",
         calculateCredit: ""
     },
     {
@@ -62,21 +48,21 @@ const statsConfig = [
         fieldIds: ["golden_clover", "fortune_cat", "lucky_penny", "premium_pack"]
     },
     {
-        title: "Elve Tree: Spell Levels",
+        title: "Elve Tree Spell Levels",
         id: "spells_",
         type: "standard",
         fields: ["Fire (HP)", "Fortune (Gold)", "Nature (XP)", "Frostbound (Bars)"],
         fieldIds: ["fire", "fortune", "nature", "frostbound"]
     },
     {
-        title: "Library: Relic Boosts",
+        title: "Library Relic Boosts",
         id: "relicts_",
         type: "standard",
         fields: ["Damage in %", "Gold in %", "XP in %", "Ancient Bars in %", "Sword Spawn +"],
         fieldIds: ["damage", "gold", "xp", "ancient_bars", "ssl"]
     },
     {
-        title: "Forge: Shield",
+        title: "Forge Shields",
         id: "shield_",
         type: "forge",
         baseFields: ["Sword Spawn"],
@@ -115,8 +101,9 @@ function renderStats() {
                 content.innerHTML += UI.standardInputRow(`${group.id}${group.fieldIds[index]}`, `${field}:`);
             });
             if (group.calculate!=undefined){
+                const credit = group.calculateCredit != "" ? ` (Credits ${group.calculateCredit})` : '';
                 content.innerHTML += 
-                    UI.note(`Points invested (Credits ${group.calculateCredit}):`) +
+                    UI.note(`${group.calculateText}${credit}:`) +
                     UI.note("", `${group.id}${group.calculate}`);
             }
         } 
@@ -131,9 +118,6 @@ function renderStats() {
                     <i class="credit">${group.boostName[i-1]}+${group.boostInc[i-1]}%</i>`, tierClass);
             }
             content.innerHTML += UI.grid4(gridContent);
-            content.innerHTML += 
-                UI.note("* Only until 80% of Max Stage: ") +
-                UI.note("", "fairy-stage");
         }
         
         else if (group.type === 'forge') {
@@ -224,6 +208,18 @@ function renderStats() {
 function toggleSkin(btn) {
     btn.classList.toggle('active');
     
+    if (btn.id) {
+        document.querySelectorAll(`[id="${btn.id}"]`).forEach(el => {
+            if (el !== btn) {
+                if (btn.classList.contains('active')) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            }
+        });
+    }
+
     if (!window.isRestoringData) {
         saveToLocalStorage();
         updateAllUI();
@@ -261,8 +257,8 @@ function selectForge(btn) {
 
 function updateFairyStage() {
     const stageInput = document.getElementById('general_stage');
-    const fairyStageEl = document.getElementById('fairy-stage'); 
-    
+    const fairyStageEl = document.getElementById('fairy_stage');
+
     if (stageInput && fairyStageEl) {
         const maxStage = Number(stageInput.value);
         if (maxStage > 0) {
@@ -515,6 +511,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('input', (e) => {
         if (!window.isRestoringData) {
             if (e.target.tagName === 'INPUT') {
+                if (e.target.id) {
+                    document.querySelectorAll(`[id="${e.target.id}"]`).forEach(el => {
+                        if (el !== e.target) {
+                            el.value = e.target.value;
+                        }
+                    });
+                }
                 saveToLocalStorage();
             }
 
