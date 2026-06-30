@@ -7,18 +7,30 @@ function renderGoldCalcUI(container) {
 
     // Validation Check
     const required = [
-        { name: "Max Sword Lvl (General)", id: "general_max_ssl" },
-        { name: "Swords Bought (General)", id: "general_swords_bought" },
-        { name: "Sword Cost (Pet Boosts)", id: "pet_sword_cost" },
-        { name: "Fortune Cat (Lucky Clovers)", id: "lucky_fortune_cat" },
-        { name: "Premium Pack (Lucky Clovers)", id: "lucky_premium_pack" }
+        { name: "Max Sword Lvl", id: "general_max_ssl" },
+        { name: "Swords Bought", id: "general_swords_bought" },
+        { name: "Sword Cost Reduction", id: "pet_sword_cost" },
+        { name: "Fortune Cat", id: "lucky_fortune_cat" },
+        { name: "Premium Lucky Pack", id: "lucky_premium_pack" }
     ];
-
-    if (!validateFor(container, required)) return;;
 
     let html = UI.credits("@Cadaeib");
     html += UI.header("Gold Until Max Sword");
-    html += UI.desc("Enter how many swords you currently own for the levels below.");
+
+    let row1 = ``;
+    row1 += UI.standardInputRow("general_max_ssl", "Max Sword Lvl");
+    row1 += UI.standardInputRow("general_swords_bought", "Swords Bought");
+    let row2 = ``;
+    row2 += UI.standardInputRow("pet_sword_cost", "Sword Cost Reduction");
+    row2 += UI.standardInputRow("lucky_fortune_cat", "Fortune Cat");
+    row2 += UI.standardInputRow("lucky_premium_pack", "Premium Lucky Pack");
+
+    html += UI.grid2(row1);
+    html += UI.grid3(row2);
+
+    // if (!validateFor(container, required)) return;
+
+    html += UI.desc("Optional: Enter how many swords you currently own for the levels below.");
     
     let gridContent = '';
     for (let i = 0; i < 12; i++) {
@@ -26,13 +38,10 @@ function renderGoldCalcUI(container) {
         if (currentSwordLv < 1) break; 
 
         // Uses our new UI components to assemble the inputs!
-        gridContent += UI.row(
-            UI.label(`Sword Lv ${currentSwordLv}`) + 
-            UI.input(`lower_ssl_${i}`, 'input-sm', `oninput="window.dispatchEvent(new Event('ismDataUpdated'))"`)
-        );
+        gridContent += UI.standardInputRow(`lower_ssl_${i}`,`Sword Lv ${currentSwordLv}`);
     }
     
-    html += UI.grid2(gridContent);
+    html += UI.grid4(gridContent);
     html += UI.resultDisplay("calc-result");
 
     container.innerHTML = html;
