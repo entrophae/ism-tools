@@ -1,5 +1,12 @@
 const toolRegistry = [
     {
+        id: 'idleDrops',                 
+        name: 'Idle Drops',              
+        file: 'idleDrops.js',          
+        render: (container) => typeof renderUI === 'function' ? renderUI(container) : null,
+        update: () => typeof calculateDrops === 'function' ? calculateDrops() : null
+    },
+    {
         id: 'goldCalc',                 
         name: 'Gold Calc',              
         file: 'goldCalc.js',          
